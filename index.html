@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AyurVeda Digital - React Dashboard</title>
+    
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 50%, #e0f2e0 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR STYLES ===== */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fdf8 100%);
+            padding: 20px;
+            border-right: 1px solid #d4e6d4;
+            box-shadow: 2px 0 10px rgba(45, 80, 22, 0.08);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid #d4e6d4;
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            border-radius: 12px;
+        }
+
+        .logo h1 {
+            color: #2d5016;
+            font-size: 24px;
+            margin-bottom: 5px;
+            animation: logoGlow 3s ease-in-out infinite;
+            text-shadow: 0 2px 4px rgba(45, 80, 22, 0.1);
+        }
+
+        .logo p {
+            color: #4a7c59;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { text-shadow: 0 2px 4px rgba(45, 80, 22, 0.1), 0 0 8px rgba(76, 175, 80, 0.2); }
+            50% { text-shadow: 0 2px 4px rgba(45, 80, 22, 0.2), 0 0 15px rgba(76, 175, 80, 0.4); }
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            color: #2d5016;
+            transform: translateX(5px);
+            border-left: 3px solid #4caf50;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            color: white;
+            box-shadow: 0 3px 12px rgba(76, 175, 80, 0.4);
+            border-left: 3px solid #2e7d32;
+        }
+
+        .nav-icon {
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        /* ===== MAIN CONTENT STYLES ===== */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ffffff, #f8fdf8);
+            padding: 25px 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #d4e6d4;
+            box-shadow: 0 3px 15px rgba(45, 80, 22, 0.08);
+        }
+
+        .welcome-text h2 {
+            color: #2d5016;
+            margin-bottom: 5px;
+        }
+
+        .welcome-text p {
+            color: #666;
+        }
+
+        /* ===== NOTIFICATION STYLES ===== */
+        .notification-bell {
+            position: relative;
+            background: linear-gradient(135deg, #66bb6a, #4caf50);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+            animation: bellPulse 2s ease-in-out infinite;
+        }
+
+        .notification-bell:hover {
+            transform: scale(1.1);
+            animation-play-state: paused;
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff6f00;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: badgeBounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bellPulse {
+            0%, 100% { box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
+            50% { box-shadow: 0 4px 20px rgba(76, 175, 80, 0.6), 0 0 0 4px rgba(76, 175, 80, 0.1); }
+        }
+
+        @keyframes badgeBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* ===== CARD STYLES ===== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #ffffff, #f8fdf8);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #d4e6d4;
+            box-shadow: 0 2px 8px rgba(45, 80, 22, 0.08);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(45, 80, 22, 0.15), 0 0 0 1px rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.3);
+        }
+
+        .card h3 {
+            color: #2d5016;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-icon {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2e7d32, #4caf50, #66bb6a);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 15px 0;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* ===== PROGRESS BAR STYLES ===== */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #66bb6a);
+            border-radius: 8px;
+            transition: width 0.8s ease;
+        }
+
+        /* ===== BUTTON STYLES ===== */
+        .btn {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #388e3c, #2e7d32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        /* ===== SCHEDULE STYLES ===== */
+        .schedule-item {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #4caf50;
+        }
+
+        .date-badge {
+            background: #e8f5e8;
+            color: #2d5016;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid #c8e6c8;
+        }
+
+        .date-badge.completed {
+            background: #4caf50;
+            color: white;
+            border-color: #388e3c;
+        }
+
+        .date-badge.pending {
+            background: #ff9800;
+            color: white;
+            border-color: #f57c00;
+        }
+
+        /* ===== RESPONSIVE STYLES ===== */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // =====================================================
+        // REACT COMPONENTS - SIMPLE & BEGINNER FRIENDLY
+        // =====================================================
+
+        // 1. MAIN APP COMPONENT
+        // This is the main component that holds everything together
+        function App() {
+            // State to track which page we're on
+            const [currentPage, setCurrentPage] = React.useState('dashboard');
+            
+            // State to track if notifications are open
+            const [notificationsOpen, setNotificationsOpen] = React.useState(false);
+
+            return (
+                <div className="container">
+                    {/* Sidebar Navigation */}
+                    <Sidebar 
+                        currentPage={currentPage} 
+                        setCurrentPage={setCurrentPage} 
+                    />
+                    
+                    {/* Main Content Area */}
+                    <div className="main-content">
+                        {/* Header with notifications */}
+                        <Header 
+                            notificationsOpen={notificationsOpen}
+                            setNotificationsOpen={setNotificationsOpen}
+                        />
+                        
+                        {/* Show different content based on current page */}
+                        <PageContent currentPage={currentPage} />
+                    </div>
+                </div>
+            );
+        }
+
+        // 2. SIDEBAR COMPONENT
+        // Navigation menu on the left side
+        function Sidebar({ currentPage, setCurrentPage }) {
+            // List of navigation items
+            const navItems = [
+                { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+                { id: 'profile', icon: '👤', label: 'User Profile' },
+                { id: 'medical', icon: '🏥', label: 'Medical Profile' },
+                { id: 'treatment', icon: '💊', label: 'Treatment Plans' },
+                { id: 'progress', icon: '📈', label: 'Progress History' }
+            ];
+
+            return (
+                <div className="sidebar">
+                    {/* Logo Section */}
+                    <div className="logo">
+                        <h1>🌿 AyurVeda Digital</h1>
+                        <p>Holistic Health Management</p>
+                    </div>
+                    
+                    {/* Navigation Menu */}
+                    <ul className="nav-menu">
+                        {navItems.map(item => (
+                            <li key={item.id} className="nav-item">
+                                <a 
+                                    href="#" 
+                                    className={`nav-link ${currentPage === item.id ? 'active' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setCurrentPage(item.id);
+                                    }}
+                                >
+                                    <span className="nav-icon">{item.icon}</span>
+                                    {item.label}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        }
+
+        // 3. HEADER COMPONENT
+        // Top section with welcome message and notifications
+        function Header({ notificationsOpen, setNotificationsOpen }) {
+            // Get current time for greeting
+            const getGreeting = () => {
+                const hour = new Date().getHours();
+                if (hour < 12) return 'Good morning';
+                if (hour < 17) return 'Good afternoon';
+                return 'Good evening';
+            };
+
+            return (
+                <div className="header">
+                    <div className="welcome-text">
+                        <h2>{getGreeting()}, Priya!</h2>
+                        <p>Your wellness journey continues today</p>
+                    </div>
+                    <button 
+                        className="notification-bell"
+                        onClick={() => setNotificationsOpen(!notificationsOpen)}
+                    >
+                        🔔
+                        <span className="notification-badge">3</span>
+                    </button>
+                </div>
+            );
+        }
+
+        // 4. PAGE CONTENT COMPONENT
+        // Shows different content based on selected page
+        function PageContent({ currentPage }) {
+            // Render different components based on current page
+            switch (currentPage) {
+                case 'dashboard':
+                    return <DashboardPage />;
+                case 'profile':
+                    return <ProfilePage />;
+                case 'medical':
+                    return <MedicalPage />;
+                case 'treatment':
+                    return <TreatmentPage />;
+                case 'progress':
+                    return <ProgressPage />;
+                default:
+                    return <DashboardPage />;
+            }
+        }
+
+        // 5. DASHBOARD PAGE COMPONENT
+        // Main dashboard with stats and schedule
+        function DashboardPage() {
+            // Dashboard statistics data
+            const stats = [
+                {
+                    icon: '🎯',
+                    title: 'Treatment Progress',
+                    value: '78%',
+                    description: 'Current Panchakarma therapy showing excellent results',
+                    hasProgress: true,
+                    progress: 78
+                },
+                {
+                    icon: '📅',
+                    title: 'Next Appointment',
+                    value: '2',
+                    description: 'Days remaining',
+                    subtitle: 'Dr. Sharma - Consultation'
+                },
+                {
+                    icon: '💊',
+                    title: 'Medicine Adherence',
+                    value: '92%',
+                    description: 'Excellent compliance with prescribed herbs',
+                    hasProgress: true,
+                    progress: 92
+                },
+                {
+                    icon: '🧘',
+                    title: 'Wellness Score',
+                    value: '8.5',
+                    description: 'Out of 10',
+                    subtitle: 'Based on daily assessments'
+                }
+            ];
+
+            // Today's schedule data
+            const schedule = [
+                {
+                    title: 'Morning Meditation',
+                    time: '6:00 AM - 6:30 AM',
+                    status: 'completed'
+                },
+                {
+                    title: 'Herbal Medicine',
+                    time: '8:00 AM - Triphala Churna',
+                    status: 'pending'
+                },
+                {
+                    title: 'Yoga Session',
+                    time: '5:00 PM - Pranayama',
+                    status: 'scheduled'
+                }
+            ];
+
+            return (
+                <div>
+                    {/* Statistics Grid */}
+                    <div className="dashboard-grid">
+                        {stats.map((stat, index) => (
+                            <StatCard key={index} stat={stat} />
+                        ))}
+                    </div>
+
+                    {/* Today's Schedule */}
+                    <div className="card">
+                        <h3><span className="card-icon">📋</span>Today's Schedule</h3>
+                        <div style={{ marginTop: '20px' }}>
+                            {schedule.map((item, index) => (
+                                <ScheduleItem key={index} item={item} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // 6. STAT CARD COMPONENT
+        // Individual statistic card
+        function StatCard({ stat }) {
+            return (
+                <div className="card">
+                    <h3>
+                        <span className="card-icon">{stat.icon}</span>
+                        {stat.title}
+                    </h3>
+                    <div className="stat-number">{stat.value}</div>
+                    
+                    {/* Show progress bar if stat has progress */}
+                    {stat.hasProgress && (
+                        <div className="progress-bar">
+                            <div 
+                                className="progress-fill" 
+                                style={{ width: `${stat.progress}%` }}
+                            ></div>
+                        </div>
+                    )}
+                    
+                    <p>{stat.description}</p>
+                    {stat.subtitle && (
+                        <p style={{ color: '#666', fontSize: '14px' }}>{stat.subtitle}</p>
+                    )}
+                </div>
+            );
+        }
+
+        // 7. SCHEDULE ITEM COMPONENT
+        // Individual schedule item
+        function ScheduleItem({ item }) {
+            // Get badge class based on status
+            const getBadgeClass = (status) => {
+                switch (status) {
+                    case 'completed':
+                        return 'date-badge completed';
+                    case 'pending':
+                        return 'date-badge pending';
+                    default:
+                        return 'date-badge';
+                }
+            };
+
+            // Get status text
+            const getStatusText = (status) => {
+                switch (status) {
+                    case 'completed':
+                        return 'Completed';
+                    case 'pending':
+                        return 'Pending';
+                    default:
+                        return 'Scheduled';
+                }
+            };
+
+            return (
+                <div className="schedule-item">
+                    <div>
+                        <strong>{item.title}</strong>
+                        <p style={{ color: '#666', margin: '5px 0' }}>{item.time}</p>
+                    </div>
+                    <span className={getBadgeClass(item.status)}>
+                        {getStatusText(item.status)}
+                    </span>
+                </div>
+            );
+        }
+
+        // 8. SIMPLE PAGE COMPONENTS
+        // Other pages with basic content
+        function ProfilePage() {
+            return (
+                <div className="card">
+                    <h3><span className="card-icon">👤</span>User Profile</h3>
+                    <p style={{ marginTop: '20px' }}>
+                        This is where user profile information would be displayed.
+                        In a real app, you'd have forms and user data here.
+                    </p>
+                    <button className="btn" style={{ marginTop: '20px' }}>
+                        Edit Profile
+                    </button>
+                </div>
+            );
+        }
+
+        function MedicalPage() {
+            return (
+                <div className="card">
+                    <h3><span className="card-icon">🏥</span>Medical Profile</h3>
+                    <p style={{ marginTop: '20px' }}>
+                        Medical history, allergies, and health information would be shown here.
+                        This could include charts, medical records, and health metrics.
+                    </p>
+                    <button className="btn" style={{ marginTop: '20px' }}>
+                        Update Medical Info
+                    </button>
+                </div>
+            );
+        }
+
+        function TreatmentPage() {
+            return (
+                <div className="card">
+                    <h3><span className="card-icon">💊</span>Treatment Plans</h3>
+                    <p style={{ marginTop: '20px' }}>
+                        Active and past treatment plans would be displayed here.
+                        You could see progress, medications, and treatment schedules.
+                    </p>
+                    <button className="btn" style={{ marginTop: '20px' }}>
+                        View All Treatments
+                    </button>
+                </div>
+            );
+        }
+
+        function ProgressPage() {
+            return (
+                <div className="card">
+                    <h3><span className="card-icon">📈</span>Progress History</h3>
+                    <p style={{ marginTop: '20px' }}>
+                        Charts and graphs showing your health progress over time.
+                        This could include wellness scores, treatment effectiveness, and trends.
+                    </p>
+                    <button className="btn" style={{ marginTop: '20px' }}>
+                        View Detailed Reports
+                    </button>
+                </div>
+            );
+        }
+
+        // =====================================================
+        // START THE REACT APP
+        // =====================================================
+        
+        // Render the main App component to the page
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ff1b73b60d80aa',t:'MTc1ODAxMjUzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
